@@ -5,15 +5,15 @@ import psycopg2
 from psycopg2 import sql
 from datetime import datetime
 
-# Load trained model
-model = joblib.load("loan_model.pkl")
+# Load trained model and training columns
+model, training_columns = joblib.load("loan_model.pkl")
 
 # Database connection function
 def get_connection():
     return psycopg2.connect(
-        dbname="loan_app",
-        user="postgres",          # change to your DB user
-        password="yourpassword",  # change to your DB password
+        dbname="Lloan_app;",             # fixed typo
+        user="postgres",               # change to your DB user
+        password="#erisimasol1985",    # change to your DB password
         host="localhost",
         port="5432"
     )
@@ -81,16 +81,32 @@ if st.button("Predict"):
         "CreditScore": [credit_score]
     })
 
+    # One-hot encode applicant input
     input_data = pd.get_dummies(input_data)
 
+    # Add missing columns with 0
+    for col in training_columns:
+        if col not in input_data.columns:
+            input_data[col] = 0
+
+    # Reorder columns to match training
+    input_data = input_data[training_columns]
+
+    # Predict
     prediction = model.predict(input_data)[0]
     probability = model.predict_proba(input_data)[0][1]
 
     # Save prediction
     cursor.execute("""
-        INSERT INTO predictions (applicant_id, prediction, probability, created_at)
-        VALUES (%s, %s, %s, %s);
-    """, (applicant_id, "Approved" if prediction == 1 else "Rejected", probability, created_at))
+    INSERT INTO predictions (applicant_id, prediction, probability, created_at)
+    VALUES (%s, %s, %s, %s);
+""", (
+    applicant_id,
+    "Approved" if prediction == 1 else "Rejected",
+    float(probability),   # ✅ convert NumPy float to Python float
+    created_at
+))
+
     conn.commit()
     cursor.close()
     conn.close()
