@@ -8,3 +8,6 @@ seaborn
 joblib
 psycopg2-binary
 SQLAlchemy
+xgboost
+joblib
+
