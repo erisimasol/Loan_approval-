@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Loan Approval Prediction</title>
+</head>
+<body>
+  <h1>Loan Approval Prediction</h1>
+  <form id="loanForm">
+    Age: <input type="number" name="Age" required><br>
+    Income: <input type="number" name="Income" required><br>
+    Employment Status:
+    <select name="EmploymentStatus">
+      <option>Employed</option>
+      <option>Self-Employed</option>
+      <option>Unemployed</option>
+    </select><br>
+    Loan Amount: <input type="number" name="LoanAmount" required><br>
+    Loan Term (months): <input type="number" name="LoanTerm" required><br>
+    Credit Score: <input type="number" name="CreditScore" required><br>
+    <button type="submit">Predict</button>
+  </form>
+
+  <h2 id="result"></h2>
+
+  <script>
+    document.getElementById("loanForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+
+      const response = await fetch("http://localhost:5000/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      document.getElementById("result").innerText =
+        `Prediction: ${result.prediction}, Probability: ${result.probability}`;
+    });
+  </script>
+</body>
+</html>
