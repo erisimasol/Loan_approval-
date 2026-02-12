@@ -11,7 +11,7 @@ model, training_columns = joblib.load("loan_model.pkl")
 # Database connection function
 def get_connection():
     return psycopg2.connect(
-        dbname="Lloan_app",             # fixed typo
+        dbname="Loan_app",             # fixed typo
         user="postgres",               # change to your DB user
         password="#erisimasol1985",    # change to your DB password
         host="localhost",
