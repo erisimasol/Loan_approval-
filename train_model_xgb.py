@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import joblib
 import xgboost as xgb
 from sklearn.utils import resample
 
@@ -16,6 +17,7 @@ loan_amounts = np.random.randint(1000, 50000, n_samples)
 loan_terms = np.random.choice([12, 24, 36, 48, 60], n_samples)
 credit_scores = np.random.randint(300, 850, n_samples)
 
+# Approval rules
 loan_statuses = []
 for income, credit, emp, loan in zip(incomes, credit_scores, employment_statuses, loan_amounts):
     if emp == "Unemployed" and credit < 600:
@@ -71,7 +73,6 @@ model = xgb.XGBClassifier(
     subsample=0.8,
     colsample_bytree=0.8,
     random_state=42,
-    use_label_encoder=False,
     eval_metric="logloss"
 )
 
@@ -80,7 +81,5 @@ model.fit(X, y)
 # -----------------------------
 # Step 4: Save model + training columns
 # -----------------------------
-model.save_model("loan_model.json")  # native XGBoost format
-pd.Series(X.columns).to_json("loan_features.json")  # save feature names
-
+joblib.dump((model, X.columns.tolist()), "loan_model.pkl")
 print("✅ XGBoost model trained and saved with feature columns")
